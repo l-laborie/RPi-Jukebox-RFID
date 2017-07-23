@@ -9,6 +9,7 @@ class OMXPlayer(object):
     _FILEPROP_REXP = re.compile(r".*audio streams (\d+) video streams (\d+) chapters (\d+) subtitles (\d+).*")
     _VIDEOPROP_REXP = re.compile(r".*Video codec ([\w-]+) width (\d+) height (\d+) profile (\d+) fps ([\d.]+).*")
     _AUDIOPROP_REXP = re.compile(r"Audio codec (\w+) channels (\d+) samplerate (\d+) bitspersample (\d+).*")
+    _SUBTITLE_REXP = re.compile(r"Subtitle count: (\d+), state: (\w+), index: (\d+), delay: (\d+)")
     _STATUS_REXP = re.compile(r"V :\s*([\d.]+).*")
     _DONE_REXP = re.compile(r"have a nice day.*")
 
@@ -29,24 +30,45 @@ class OMXPlayer(object):
         self.video = dict()
         self.audio = dict()
         # Get file properties
-        file_props = self._FILEPROP_REXP.match(self._process.readline()).groups()
-        (self.audio['streams'], self.video['streams'],
-         self.chapters, self.subtitles) = [int(x) for x in file_props]
-        # Get video properties
-        video_props = self._VIDEOPROP_REXP.match(self._process.readline()).groups()
-        self.video['decoder'] = video_props[0]
-        self.video['dimensions'] = tuple(int(x) for x in video_props[1:3])
-        self.video['profile'] = int(video_props[3])
-        self.video['fps'] = float(video_props[4])
-        # Get audio properties
-        audio_props = self._AUDIOPROP_REXP.match(self._process.readline()).groups()
-        self.audio['decoder'] = audio_props[0]
-        (self.audio['channels'], self.audio['rate'],
-         self.audio['bps']) = [int(x) for x in audio_props[1:]]
+        output = self._process.readline()
+        print ' --> %s' % output
+        file_prop_match = self._FILEPROP_REXP.match(output)
+        if file_prop_match:
+            file_props = file_prop_match.groups()
+            (self.audio['streams'], self.video['streams'],
+             self.chapters, self.subtitles) = [int(x) for x in file_props]
+            output = self._process.readline()
 
-        if self.audio['streams'] > 0:
-            self.current_audio_stream = 1
-            self.current_volume = 0.0
+        # Get video properties
+        print ' --> %s' % output
+        video_prop_match = self._VIDEOPROP_REXP.match(output)
+        if video_prop_match:
+            video_props = video_prop_match.groups()
+            self.video['decoder'] = video_props[0]
+            self.video['dimensions'] = tuple(int(x) for x in video_props[1:3])
+            self.video['profile'] = int(video_props[3])
+            self.video['fps'] = float(video_props[4])
+            output = self._process.readline()
+
+        # Get audio properties
+        print ' --> %s' % output
+        audio_prop_match = self._AUDIOPROP_REXP.match(output)
+        if audio_prop_match:
+            audio_props = audio_prop_match.groups()
+            self.audio['decoder'] = audio_props[0]
+            (self.audio['channels'], self.audio['rate'],
+             self.audio['bps']) = [int(x) for x in audio_props[1:]]
+            output = self._process.readline()
+
+            if self.audio.get('streams', 0) > 0:
+                self.current_audio_stream = 1
+                self.current_volume = 0.0
+
+        # Get audio properties
+        print ' --> %s' % output
+        subtitle_prop_match = self._SUBTITLE_REXP.match(output)
+        output = self._process.readline()
+        print ' --> %s' % output
 
         self._position_thread = Thread(target=self._get_position)
         self._position_thread.start()
@@ -56,11 +78,13 @@ class OMXPlayer(object):
         self.toggle_subtitles()
 
     def _get_position(self):
+        print 'start get_position'
         while True:
             index = self._process.expect([self._STATUS_REXP,
                                           pexpect.TIMEOUT,
                                           pexpect.EOF,
                                           self._DONE_REXP])
+            print index
             if index == 1:
                 continue
             elif index in (2, 3):
