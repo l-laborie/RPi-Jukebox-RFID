@@ -23,7 +23,7 @@ class OMXPlayer(object):
     _STATUS_REXP = re.compile(r"M:\d+ V:\s*([\d.]+).*")
     _DONE_REXP = re.compile(r"have a nice day.*")
 
-    _LAUNCH_CMD = '/usr/bin/omxplayer -s'
+    _LAUNCH_CMD = '/usr/bin/omxplayer -s --vol -4000'
     _PAUSE_CMD = 'p'
     _QUIT_CMD = 'q'
 
@@ -67,6 +67,7 @@ class OMXPlayer(object):
         self._media_files = value
         self._media_index = 0 if len(self._media_files) > 0 else None
         self._media_file_lock.release()
+        print 'set media index to %d' % self._media_index
 
     def _set_action(self, action):
         self._action_queue_lock.acquire()
@@ -97,7 +98,22 @@ class OMXPlayer(object):
 
         print('end play')
 
-    def play(self, *media_files):
+    @staticmethod
+    def _select_files(path):
+        import os
+        result = []
+        if os.path.isdir(path):
+            for media in os.listdir(path):
+                if media.lower().endswith(('.mp3', '.wav', '.flac')):
+                    result.append(os.path.join(path, media))
+        else:
+            result.append(path)
+        return result
+
+    def play(self, media_file):
+        print media_file
+        media_files = self._select_files(media_file)
+        print media_files
         self._set_media_files(list(media_files))
 
         self._set_action(self._play)
@@ -194,14 +210,14 @@ class OMXPlayer(object):
                 self._STATUS_REXP,
             ])
             print(index)
-            # if index == 0:
-            if index in (0, 1):
+            if index == 0:
+            # if index in (0, 1):
                 print('--> timeout')
                 if self.state == OMXPlayer.STATE_STOP:
                     self.state = OMXPlayer.STATE_PLAY
                 continue
-            # if index in (1, 2):
-            if index == 1:
+            if index in (1, 2):
+            # if index == 1:
                 print('--> stop')
                 self.state = OMXPlayer.STATE_STOP
                 self._process.terminate(force=True)
