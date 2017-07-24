@@ -11,7 +11,7 @@ _LAUNCH_CMD = '/usr/bin/omxplayer'
 
 class OMXPlayer(object):
     _LAUNCH_CMD = ['/usr/bin/omxplayer']
-    _LAUNCH_CMD_ARGS = ['-s',  '--vol', '-2000']
+    _LAUNCH_CMD_ARGS = ['-s',  '--vol', '-4000']
     _PAUSE_CMD = 'p'
     _QUIT_CMD = 'q'
     _VOL_PLUS = '+'
@@ -187,18 +187,8 @@ if __name__ == "__main__":
     # play(sys.argv[1:])
     player = OMXPlayer()
     print('call play')
-    player.play('/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Thomas_Fersen')
+    player.play('/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Un_Monstre_a_Paris')
     sleep(10)
-    player.previous()
-    sleep(10)
-    player.next()
-    sleep(10)
-    player.previous()
-    sleep(10)
-    player.next()
-    sleep(10)
-    player.next()
-    sleep(10)
-    player.decrease_volume()
-    sleep(10)
-    player.increase_volume()
+    player.stop()
+    sleep(5)
+    player.play('/home/pi/RPi-Jukebox-RFID/shared/audiofolders/M')
