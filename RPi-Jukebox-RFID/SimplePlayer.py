@@ -106,9 +106,13 @@ class OMXPlayer(object):
         if self._decrease_index():
             self._set_action('stop', 'play')
 
+    def quit(self):
+        self._set_action('stop', 'quit')
+
     def __drive(self):
         print('start drive')
-        while True:
+        _continue = True
+        while _continue:
             if self._event.wait(0.05):
                 print('event seen')
 
@@ -142,18 +146,22 @@ class OMXPlayer(object):
                     if action == 'vol-':
                         self._process.stdin.write(self._VOL_MINUS)
 
+                    if action == 'quit':
+                        _continue = False
+                        print('say quit')
+
                 self._event.clear()
 
-            status = self._process.poll()
-            if status is not None:
-                print(status)
-                if self._increase_index():
-                    self._set_action('play')
-                else:
-                    break
+            if self._process is not None:
+                status = self._process.poll()
+                if status is not None:
+                    print(status)
+                    if self._increase_index():
+                        self._set_action('play')
+                    else:
+                        self._process = None
 
             sleep(0.05)
-
         print('stop drive')
 
 
@@ -192,3 +200,5 @@ if __name__ == "__main__":
     player.stop()
     sleep(5)
     player.play('/home/pi/RPi-Jukebox-RFID/shared/audiofolders/M')
+    sleep(5)
+    player.quit()
