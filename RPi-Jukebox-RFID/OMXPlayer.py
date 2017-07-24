@@ -67,8 +67,6 @@ class OMXPlayer(object):
         # Get audio properties
         print ' --> %s' % output
         subtitle_prop_match = self._SUBTITLE_REXP.match(output)
-        output = self._process.readline()
-        print ' --> %s' % output
 
         self._position_thread = Thread(target=self._get_position)
         self._position_thread.start()

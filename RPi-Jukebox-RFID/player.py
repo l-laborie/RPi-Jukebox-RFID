@@ -188,15 +188,18 @@ class OMXPlayer(object):
             queue_is_empty = False
             while not queue_is_empty:
                 print('enter dequeue loop')
+                action = None
+
                 self._action_queue_lock.acquire()
                 queue_is_empty = self.action_queue.empty()
                 if not queue_is_empty:
                     action = self.action_queue.get()
                 self._action_queue_lock.release()
 
-                if action():
-                    print('end drive')
-                    return
+                if action:
+                    if action():
+                        print('end drive')
+                        return
 
             self._event.clear()
 
