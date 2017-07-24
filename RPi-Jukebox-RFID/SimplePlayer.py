@@ -14,6 +14,8 @@ class OMXPlayer(object):
     _LAUNCH_CMD_ARGS = ['-s',  '--vol', '-2000']
     _PAUSE_CMD = 'p'
     _QUIT_CMD = 'q'
+    _VOL_PLUS = '+'
+    _VOL_MINUS = '-'
 
     _event = Event()
 
@@ -90,6 +92,12 @@ class OMXPlayer(object):
 
         self._set_action('stop', 'play')
 
+    def increase_volume(self):
+        self._set_action('vol+')
+
+    def decrease_volume(self):
+        self._set_action('vol-')
+
     def next(self):
         if self._increase_index():
             self._set_action('stop', 'play')
@@ -127,6 +135,12 @@ class OMXPlayer(object):
                         print(args)
                         self._process = subprocess.Popen(args, stdin = subprocess.PIPE, stdout = subprocess.PIPE,
                                                          stderr = subprocess.PIPE)
+
+                    if action == 'vol+':
+                        self._process.stdin.write(self._VOL_PLUS)
+
+                    if action == 'vol-':
+                        self._process.stdin.write(self._VOL_MINUS)
 
                 self._event.clear()
 
@@ -173,11 +187,18 @@ if __name__ == "__main__":
     # play(sys.argv[1:])
     player = OMXPlayer()
     print('call play')
-    player.play('/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Vaiana')
+    player.play('/home/pi/RPi-Jukebox-RFID/shared/audiofolders/Thomas_Fersen')
+    sleep(10)
+    player.previous()
     sleep(10)
     player.next()
     sleep(10)
     player.previous()
-    sleep(60)
-    print('call stop')
-    player.stop()
+    sleep(10)
+    player.next()
+    sleep(10)
+    player.next()
+    sleep(10)
+    player.decrease_volume()
+    sleep(10)
+    player.increase_volume()
