@@ -6,3 +6,6 @@ install: "pip install -r requirements/test.txt"
 
 script:
   - ./ci.sh
+
+after_success:
+  - codecov
