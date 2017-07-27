@@ -1,4 +1,4 @@
-# RPi-Jukebox-RFID [![Build Status](https://travis-ci.org/l-laborie/RPi-Jukebox-RFID.svg?branch=master)](https://travis-ci.org/l-laborie/RPi-Jukebox-RFID)
+# RPi-Jukebox-RFID [![Build Status](https://travis-ci.org/l-laborie/RPi-Jukebox-RFID.svg?branch=master)](https://travis-ci.org/l-laborie/RPi-Jukebox-RFID) [![codecov](https://codecov.io/gh/l-laborie/RPi-Jukebox-RFID/branch/master/graph/badge.svg)](https://codecov.io/gh/l-laborie/RPi-Jukebox-RFID)
 
 A jukebox for the Raspberry Pi, playing local audio files, playlists or even web streams triggered by RFID cards. All plug and play via USB, no soldering iron needed. 
 
