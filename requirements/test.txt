@@ -1,0 +1,12 @@
+# Include the base requirements file
+-r base.txt
+
+# Testing
+pytest==3.0.5
+pytest-cov==2.4.0
+pytest-xdist==1.15.0
+
+# Code analysis
+pep8 >= 1.7.0
+pep257 >= 0.7.0
+pylint >= 1.7.0
