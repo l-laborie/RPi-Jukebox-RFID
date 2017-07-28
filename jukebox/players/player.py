@@ -1,5 +1,6 @@
 import logging
 from threading import Thread, Event
+import time
 
 from jukebox import LockedQueue, LockedList, MediaLister
 
@@ -67,7 +68,7 @@ class Player(object):
         self._callback_event.set()
         return True
 
-    def __init__(self, media_lister):
+    def __init__(self, media_lister, life_time=None):
         self._thread_drive = Thread(target=self.__drive)
         self._thread_drive.start()
         self._process_by_action = {
@@ -79,14 +80,16 @@ class Player(object):
             self._CALLBACK: self.callback,
         }
         self._media_lister = media_lister or MediaLister()
+        self._life_time = life_time
 
     def __log(self, level, message):
         if self._logger:
             self._logger.log(level, message)
 
     def __drive(self):
-        self.__log(level=logging.DEBUG, message='Start drive thread')
+        self.__log(level=logging.INFO, message='Start drive thread')
         continue_ = True
+        start_time = time.time()
         while continue_:
             if self._input_event.wait(0.05):
                 while not self._action_queue.empty():
@@ -96,7 +99,7 @@ class Player(object):
                                self._ACTION_NAMES[action])
                     action = self._process_by_action.get(action)
                     if action:
-                        continue_ = action(self._media_playlist.get())
+                        continue_ &= action(self._media_playlist.get())
                 self._input_event.clear()
 
             if self.process_is_state_change():
@@ -104,12 +107,21 @@ class Player(object):
                     self._action_queue.push(self._PLAY)
                 else:
                     self.process_cleanup()
-        self.__log(level=logging.DEBUG, message='Stop drive thread')
+
+            if self._life_time and continue_:
+                life_time = time.time() - start_time
+                continue_ = life_time < self._life_time
+
+        life_time = time.time() - start_time
+        self.__log(level=logging.INFO,
+                   message='Stop drive thread. Life time : %fs' % life_time)
 
     def _set_actions(self, action_list, wait=False, timeout=None):
         if wait:
             action_list.append(self._CALLBACK)
+
         self._action_queue.push(*action_list)
+        self._input_event.set()
 
         if wait:
             self._callback_event.wait(timeout=timeout)
