@@ -5,6 +5,7 @@ import time
 from jukebox import LockedQueue, LockedList, MediaLister
 
 
+# pylint: disable=too-many-instance-attributes
 class Player(object):
     """Implement a mechanism to drive a player subprocess.
 
@@ -28,10 +29,6 @@ class Player(object):
     _CALLBACK = 5
     _ACTION_NAMES = ['quit', 'stop', 'play', 'vol +', 'vol -', 'callback']
 
-    # Thread events
-    _input_event = Event()
-    _callback_event = Event()
-
     # Action queue manage
     _action_queue = LockedQueue(10)
 
@@ -39,7 +36,7 @@ class Player(object):
     _media_playlist = LockedList()
 
     # Driver
-    _thread_drive = None
+    # _thread_drive = None
     _logger = None
 
     def process_cleanup(self):
@@ -68,9 +65,7 @@ class Player(object):
         self._callback_event.set()
         return True
 
-    def __init__(self, media_lister, life_time=None):
-        self._thread_drive = Thread(target=self.__drive)
-        self._thread_drive.start()
+    def __init__(self, media_lister=None, life_time=None):
         self._process_by_action = {
             self._QUIT: self.process_quit,
             self._STOP: self.process_stop,
@@ -81,6 +76,20 @@ class Player(object):
         }
         self._media_lister = media_lister or MediaLister()
         self._life_time = life_time
+
+        # Thread events
+        self._input_event = Event()
+        self._callback_event = Event()
+
+        # Action queue manage
+        self._action_queue = LockedQueue(10)
+
+        # Media file playlist mange
+        self._media_playlist = LockedList()
+
+        # Start the main thread
+        self._thread_drive = Thread(target=self.__drive)
+        self._thread_drive.start()
 
     def __log(self, level, message):
         if self._logger:
@@ -104,7 +113,7 @@ class Player(object):
 
             if self.process_is_state_change():
                 if self._media_playlist.increase_index():
-                    self._action_queue.push(self._PLAY)
+                    self._set_actions([self._PLAY, ])
                 else:
                     self.process_cleanup()
 
