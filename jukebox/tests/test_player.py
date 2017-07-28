@@ -1,5 +1,5 @@
+# pylint: disable=redefined-outer-name
 import pytest
-from time import sleep
 
 from jukebox.players import Player
 
