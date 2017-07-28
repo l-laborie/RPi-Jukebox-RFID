@@ -13,8 +13,8 @@ class MediaLister(object):
         if path.isdir(input_path):
             for media in listdir(input_path):
                 if media.lower().endswith(self._media_extensions):
-                    result.append(path.join(path, media))
+                    result.append(path.join(input_path, media))
             result.sort()
-        else:
-            result.append(path)
+        elif input_path.endswith(self._media_extensions):
+            result.append(input_path)
         return result

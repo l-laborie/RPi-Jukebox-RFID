@@ -13,6 +13,9 @@ class LockedQueue(object):
                 self._queue.put(item)
 
     def pop(self):
+        if self.empty():
+            return None
+
         with self._lock:
             return self._queue.get()
 

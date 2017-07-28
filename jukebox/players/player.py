@@ -36,7 +36,6 @@ class Player(object):
 
     # Media file playlist mange
     _media_playlist = LockedList()
-    _media_lister = MediaLister()
 
     # Driver
     _thread_drive = None
@@ -68,14 +67,9 @@ class Player(object):
         self._callback_event.set()
         return True
 
-    def __init__(self, launch_cmd, launch_args,
-                 player_commands):
+    def __init__(self, media_lister):
         self._thread_drive = Thread(target=self.__drive)
         self._thread_drive.start()
-        self._launch_cmd = launch_cmd
-        self._launch_args = launch_args
-        self._player_commands = player_commands
-
         self._process_by_action = {
             self._QUIT: self.process_quit,
             self._STOP: self.process_stop,
@@ -84,6 +78,7 @@ class Player(object):
             self._DECREASE_VOL: self.process_decrease_volume,
             self._CALLBACK: self.callback,
         }
+        self._media_lister = media_lister or MediaLister()
 
     def __log(self, level, message):
         if self._logger:
