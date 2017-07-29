@@ -11,6 +11,11 @@ PLAYER_AVAILABLE_MEDIA_EXTENSIONS = ('.mp3', '.wav', '.flac')
 PLAYER_STARTUP_SOUND = path.join(WORKING_DIRECTORY, 'misc', 'startupsound.mp3')
 PLAYER_HALT_SOUND = None
 
+# Config OMXPlayer
+OMXPLAYER_DEFAULT_VOLUME = -4000
+OMXPLAYER_COMMAND = '/usr/bin/omxplayer'
+OMXPLAYER_ARGS = ['-s']
+
 
 # Config logging
 LOGGING_LEVEL = logging.DEBUG

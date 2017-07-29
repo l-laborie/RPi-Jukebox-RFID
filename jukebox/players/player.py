@@ -2,7 +2,7 @@ import logging
 from threading import Thread, Event
 import time
 
-from jukebox import LockedQueue, LockedList, MediaLister
+from jukebox import LockedQueue, LockedList
 
 
 # pylint: disable=too-many-instance-attributes
@@ -39,42 +39,26 @@ class Player(object):
     # _thread_drive = None
     _logger = None
 
-    def process_cleanup(self):
-        pass
-
-    def process_is_state_change(self):
-        pass
-
-    def process_stop(self, *args):
-        pass
-
-    def process_play(self, *args):
-        pass
-
-    def process_increase_volume(self, *args):
-        pass
-
-    def process_decrease_volume(self, *args):
-        pass
-
-    def process_quit(self, *args):
-        pass
-
     # pylint: disable=unused-argument
     def callback(self, *args):
         self._callback_event.set()
         return True
 
-    def __init__(self, media_lister=None, life_time=None):
+    def __init__(self, logging_name, processor, media_lister, life_time=None):
+        if not self._logger:
+            self._logger = logging.getLogger(logging_name)
+
+        # processor
+        self._processor = processor
         self._process_by_action = {
-            self._QUIT: self.process_quit,
-            self._STOP: self.process_stop,
-            self._PLAY: self.process_play,
-            self._INCREASE_VOL: self.process_increase_volume,
-            self._DECREASE_VOL: self.process_decrease_volume,
+            self._QUIT: self._processor.process_quit,
+            self._STOP: self._processor.process_stop,
+            self._PLAY: self._processor.process_play,
+            self._INCREASE_VOL: self._processor.process_increase_volume,
+            self._DECREASE_VOL: self._processor.process_decrease_volume,
             self._CALLBACK: self.callback,
         }
-        self._media_lister = media_lister or MediaLister()
+        self._media_lister = media_lister
         self._life_time = life_time
 
         # Thread events
@@ -111,11 +95,11 @@ class Player(object):
                         continue_ &= action(self._media_playlist.get())
                 self._input_event.clear()
 
-            if self.process_is_state_change():
+            if self._processor.process_is_state_change():
                 if self._media_playlist.increase_index():
                     self._set_actions([self._PLAY, ])
                 else:
-                    self.process_cleanup()
+                    self._processor.process_cleanup()
 
             if self._life_time and continue_:
                 life_time = time.time() - start_time
