@@ -20,10 +20,12 @@ class ProcessWrapper(object):
         return None
 
     def wait(self):
-        self._process.wait()
+        if self._process is not None:
+            self._process.wait()
 
     def write(self, command):
-        self._process.stdin.write(command)
+        if self._process is not None:
+            self._process.stdin.write(command)
 
     def clean_up(self):
         self._process = None

@@ -51,6 +51,11 @@ class Handler(object):
                 ids_file.write('This ID was used for the first time.')
 
 
+def shutdown():
+    from subprocess import call
+    call('sudo poweroff', shell=True)
+
+
 def handler_factory(player=None, **extra_actions):
     player = player or OMXPlayer()
     commands = {
@@ -61,8 +66,7 @@ def handler_factory(player=None, **extra_actions):
         CMD_PREVIOUS: player.previous_media,
     }
     if CMD_SHUTDOWN not in extra_actions:
-        from subprocess import call
-        extra_actions[CMD_SHUTDOWN] = call('sudo poweroff', shell=True)
+        extra_actions[CMD_SHUTDOWN] = shutdown
     commands.update(extra_actions)
 
     shared = path.join(WORKING_DIRECTORY, 'shared')

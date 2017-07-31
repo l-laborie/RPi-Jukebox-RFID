@@ -23,28 +23,28 @@ class OMXPlayerProcessor(object):
         return self._wrapper.poll()
 
     def process_stop(self, *args):
-        self._wrapperwrite('q')
-        self._wrapperwait()
+        self._wrapper.write('q')
+        self._wrapper.wait()
         return True
 
     def process_play(self, *args):
         launch_args = (
-            self._command + [args[0]] + self._args +
+            [self._command, args[0]] + self._args +
             ['--vol', str(self._default_volume)])
-        self._wrapperlaunch(launch_args)
+        self._wrapper.launch(launch_args)
         return True
 
     def process_increase_volume(self, *args):
         new_volume = min(0, self._current_volume + 50)
         if new_volume == self._current_volume:
-            self._wrapperwrite('+')
+            self._wrapper.write('+')
             self._current_volume = new_volume
         return True
 
     def process_decrease_volume(self, *args):
         new_volume = max(-6000, self._current_volume - 50)
         if new_volume == self._current_volume:
-            self._wrapperwrite('-')
+            self._wrapper.write('-')
             self._current_volume = new_volume
         return True
 
