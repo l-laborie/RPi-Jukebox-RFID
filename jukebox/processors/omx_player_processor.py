@@ -14,7 +14,7 @@ class OMXPlayerProcessor(object):
         self._command = command or OMXPLAYER_COMMAND
         self._default_volume = default_volume or OMXPLAYER_DEFAULT_VOLUME
         self._current_volume = self._default_volume
-        self._wrapper = wrapper or ProcessWrapper
+        self._wrapper = wrapper or ProcessWrapper()
 
     def process_cleanup(self):
         self._wrapper.clean_up()

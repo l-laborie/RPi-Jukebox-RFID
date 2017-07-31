@@ -15,6 +15,7 @@ class MediaLister(object):
                 if media.lower().endswith(self._media_extensions):
                     result.append(path.join(input_path, media))
             result.sort()
-        elif path.isfile(input_path) and input_path.endswith(self._media_extensions):
+        elif path.isfile(input_path) and input_path.endswith(
+                self._media_extensions):
             result.append(input_path)
         return result
