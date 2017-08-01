@@ -4,9 +4,9 @@
 import os.path
 import sys
 
+from select import select
 # pylint: disable=import-error
 from evdev import InputDevice, ecodes, list_devices
-from select import select
 
 
 class Reader(object):
@@ -17,8 +17,8 @@ class Reader(object):
         if not os.path.isfile(device_name_path):
             sys.exit('Please run config.py first')
         else:
-            with open(device_name_path, 'r') as f:
-                device_name = f.read()
+            with open(device_name_path, 'r') as device_name_file:
+                device_name = device_name_file.read()
             devices = [InputDevice(fn) for fn in list_devices()]
             for device in devices:
                 if device.name == device_name:
