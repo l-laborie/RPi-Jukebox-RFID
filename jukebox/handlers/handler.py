@@ -14,22 +14,12 @@ from jukebox.setting import (
 
 
 class Handler(object):
-    SHORTCUT = path.join(WORKING_DIRECTORY, 'shared', 'shortcuts')
-    AUDIO_FOLDER = path.join(WORKING_DIRECTORY, 'shared', 'audiofolders')
-
-    def __init__(self):
-        self._player = OMXPlayer()
-        self._commands = {
-            CMD_SHUTDOWN: self._shutdown,
-            CMD_STOP: self._player.stop,
-            CMD_VOL_MINUS: self._player.decrease_volume,
-            CMD_VOL_PLUS: self._player.increase_volume,
-            CMD_NEXT: self._player.next_media,
-            CMD_PREVIOUS: self._player.previous_media,
-        }
-
-    def _shutdown(self):
-        pass
+    def __init__(self, commands, path_shared, play):
+        self._commands = commands
+        self._path_shared = path_shared
+        self._path_shortcut = path.join(path_shared, 'shortcuts')
+        self._path_audio_folder = path.join(path_shared, 'audiofolders')
+        self._play = play
 
     def command(self, card_id):
         # check if the command is one of global
@@ -39,24 +29,41 @@ class Handler(object):
             return
 
         # to be continue after this point
-        latest_id_path = path.join(WORKING_DIRECTORY, 'shared',
-                                   'latestID.txt')
+        latest_id_path = path.join(self._path_shared, 'latestID.txt')
         with open(latest_id_path, 'a') as ids_file:
-            ids_file.write('Card ID %d was used at %s.' % (
-                card_id, datetime.now().strftime()))
+            ids_file.write('Card ID %r was used at %s.' % (
+                card_id, datetime.now().strftime('%Y/%m/%d %H:%M:%S.%f')))
 
-            shortcut = path.join(self.SHORTCUT, card_id)
+            shortcut = path.join(self._path_shortcut, card_id)
             if path.isfile(shortcut):
                 with open(shortcut, 'r') as content_file:
                     content = content_file.read()
                 ids_file.write('This ID has been used before.')
 
-                if content is not None:
-                    media_folder = path.join(self.AUDIO_FOLDER, content)
-                    self._player.play(media_folder)
+                if content is not None and content != card_id:
+                    media_folder = path.join(self._path_audio_folder, content)
+                    self._play(media_folder)
                     return
 
             else:
                 with open(shortcut, 'a') as shortcut_file:
                     shortcut_file.write(card_id)
                 ids_file.write('This ID was used for the first time.')
+
+
+def handler_factory(player=None, **extra_actions):
+    player = player or OMXPlayer()
+    commands = {
+        CMD_STOP: player.stop,
+        CMD_VOL_MINUS: player.decrease_volume,
+        CMD_VOL_PLUS: player.increase_volume,
+        CMD_NEXT: player.next_media,
+        CMD_PREVIOUS: player.previous_media,
+    }
+    if CMD_SHUTDOWN not in extra_actions:
+        from subprocess import call
+        extra_actions[CMD_SHUTDOWN] = call('sudo poweroff', shell=True)
+    commands.update(extra_actions)
+
+    shared = path.join(WORKING_DIRECTORY, 'shared')
+    return Handler(commands, shared, player.play)

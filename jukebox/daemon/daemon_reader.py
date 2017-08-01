@@ -1,20 +1,21 @@
-import daemon
-import lockfile
 import os
 import signal
 from sys import path
+
+import daemon
+import lockfile
 path.append(os.getcwd())
 
 # pylint: disable=wrong-import-position
 from jukebox.reader import Reader  # noqa
-from jukebox.handlers import Handler  # noqa
+from jukebox.handlers import handler_factory  # noqa
 
 
 WORKING_DIRECTORY = os.path.dirname(
     os.path.dirname(os.path.realpath(__file__)))
 
 
-class Daemonreader(object):
+class DaemonReader(object):
     def __init__(self):
         self.context = daemon.DaemonContext(
             working_directory=WORKING_DIRECTORY,
@@ -31,7 +32,7 @@ class Daemonreader(object):
         }
         # init
         self.reader = Reader()
-        self.handler = Handler()
+        self.handler = handler_factory()
 
     def run(self):
         # main
@@ -42,5 +43,4 @@ class Daemonreader(object):
 
 
 if __name__ == '__main__':
-    daemon = Daemonreader()
-    daemon.run()
+    DaemonReader().run()
