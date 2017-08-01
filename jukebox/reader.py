@@ -9,18 +9,28 @@ from select import select
 from evdev import InputDevice, ecodes, list_devices
 
 
+class EventDeviceWrapper(object):
+    @staticmethod
+    def get_devices():
+        return [InputDevice(fn) for fn in list_devices()]
+
+    @staticmethod
+    def get_key(code):
+        return ecodes.KEY[code]
+
+
 class Reader(object):
-    def __init__(self):
+    def __init__(self, event_device_wrapper=None):
         path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         self.keys = "X^1234567890XXXXqwertzuiopXXXXasdfghjklXXXXXyxcvbnmXXXXXXXXXXXXXXXXXXXXXXX"  # noqa
         device_name_path = os.path.join(path, 'scripts', 'deviceName.txt')
+        self._wrapper = event_device_wrapper or EventDeviceWrapper()
         if not os.path.isfile(device_name_path):
             sys.exit('Please run config.py first')
         else:
             with open(device_name_path, 'r') as device_name_file:
                 device_name = device_name_file.read()
-            devices = [InputDevice(fn) for fn in list_devices()]
-            for device in devices:
+            for device in self._wrapper.get_devices():
                 if device.name == device_name:
                     self.dev = device
                     break
@@ -38,5 +48,5 @@ class Reader(object):
             for event in self.dev.read():
                 if event.type == 1 and event.value == 1:
                     result += self.keys[event.code]
-                    key = ecodes.KEY[event.code]
+                    key = self._wrapper.get_key(event.code)
         return result[:-1]
