@@ -15,7 +15,10 @@ class ProcessWrapper(object):
 
     def poll(self):
         if self._process is not None:
-            return self._process.poll()
+            next_line = self._process.stdout.readline()
+            polled = self._process.poll()
+            if next_line == '' and polled is not None:
+                return polled
 
         return None
 
