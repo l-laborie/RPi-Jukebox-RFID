@@ -95,8 +95,11 @@ class Player(object):
                         continue_ &= action(self._media_playlist.get())
                 self._input_event.clear()
 
-            if self._processor.process_is_state_change():
+            if self._processor.process_is_state_change() is not None:
+                self.__log(level=logging.DEBUG, message='changing state'
+                                                        'detected')
                 if self._media_playlist.increase_index():
+                    self.__log(level=logging.DEBUG, message='Go to next media')
                     self._set_actions([self._PLAY, ])
                 else:
                     self._processor.process_cleanup()

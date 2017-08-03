@@ -20,7 +20,7 @@ OMXPLAYER_ARGS = ['-s']
 # Config logging
 LOGGING_LEVEL = logging.DEBUG
 LOGGING_FILE = path.join(WORKING_DIRECTORY, 'logs', 'jukebox.log')
-
+logging.basicConfig(filename=path.join(WORKING_DIRECTORY, 'logs', 'jukebox.log'), level=logging.DEBUG)
 
 # Config card id for global actions
 CMD_MUTE = 'mute'

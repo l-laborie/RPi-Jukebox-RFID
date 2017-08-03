@@ -10,7 +10,6 @@ class Dummy(object):
         self.seen = True
 
     def assert_played(self, folder):
-        print folder
         self.seen = 'tests/shared/audiofolders/audio' in folder
 
 
