@@ -1,5 +1,7 @@
+# pylint: disable=protected-access
 import os
-from jukebox.handlers import Handler
+from jukebox.handlers import Handler, handler_factory
+from jukebox.setting import CMD_SHUTDOWN
 
 
 class Dummy(object):
@@ -65,3 +67,15 @@ def test_handler_audio(work_directory):
     assert dummy.seen
     assert "Card ID '2' was used at" in content
     assert "This ID has been used before." in content
+
+
+def test_factory(get_player):
+    dummy = Dummy()
+
+    player = get_player()
+    handler = handler_factory(player=player, terminate_timeout=1,
+                              **{CMD_SHUTDOWN: dummy.assert_true})
+    handler.command(CMD_SHUTDOWN)
+
+    assert player._processor.result == 'stop quit clean_up '
+    assert dummy.seen

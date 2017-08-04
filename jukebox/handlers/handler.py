@@ -56,7 +56,21 @@ def shutdown():
     call('sudo poweroff', shell=True)
 
 
-def handler_factory(player=None, **extra_actions):
+def _create_gracefully_shutdown(player=None, terminate_timeout=None,
+                                shutdown_action=None):
+    shutdown_action = shutdown_action or shutdown
+
+    if not player:
+        return shutdown_action
+
+    def _shutdown():
+        player.quit(wait=True, timeout=terminate_timeout)
+        shutdown_action()
+
+    return _shutdown
+
+
+def handler_factory(player=None, terminate_timeout=None, **extra_actions):
     player = player or OMXPlayer()
     commands = {
         CMD_STOP: player.stop,
@@ -65,8 +79,11 @@ def handler_factory(player=None, **extra_actions):
         CMD_NEXT: player.next_media,
         CMD_PREVIOUS: player.previous_media,
     }
-    if CMD_SHUTDOWN not in extra_actions:
-        extra_actions[CMD_SHUTDOWN] = shutdown
+    shutdown_action = extra_actions.pop(CMD_SHUTDOWN, shutdown)
+    commands[CMD_SHUTDOWN] = _create_gracefully_shutdown(
+        player=player, terminate_timeout=terminate_timeout,
+        shutdown_action=shutdown_action
+    )
     commands.update(extra_actions)
 
     shared = path.join(WORKING_DIRECTORY, 'shared')

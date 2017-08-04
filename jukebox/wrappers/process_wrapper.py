@@ -1,8 +1,4 @@
-import logging
 import subprocess
-
-
-LOGGER = logging.getLogger('ProcessWrapper')
 
 
 class ProcessWrapper(object):
@@ -18,11 +14,9 @@ class ProcessWrapper(object):
         )
 
     def poll(self):
-        LOGGER.debug('Enter poll')
         if self._process is not None:
             next_line = self._process.stdout.readline()
             polled = self._process.poll()
-            LOGGER.debug('line seen %s, poll result %r' % (next_line, polled))
             if next_line == '' and polled is not None:
                 return polled
 

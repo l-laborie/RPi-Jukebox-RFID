@@ -40,11 +40,15 @@ class Reader(object):
                 sys.exit('Could not find the device %s\n. '
                          'Make sure is connected' % device_name)
 
-    def read_card(self):
+    def read_card(self, timeout=None):
         result = ''
         key = ''
         while key != 'KEY_ENTER':
-            _, _, _ = select([self.dev], [], [])
+            dev, _, _ = select([self.dev], [], [], timeout=timeout)
+            if not dev:
+                # Timeout raised
+                return None
+
             for event in self.dev.read():
                 if event.type == 1 and event.value == 1:
                     result += self.keys[event.code]
