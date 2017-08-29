@@ -1,0 +1,24 @@
+- name: install requirements
+  requirements: /home/pi/RPi-Jukebox-RFID/requirements.txt
+
+- name: copy service description file
+  copy:
+    src: RPi-Jukebox-RFID.service
+    dest: /lib/systemd/system/RPi-Jukebox-RFID.service
+    backup: yes
+    mode: "u=rw,g=r,o=r"
+  become: yes
+
+- name: reload daemons
+  systemd:
+    state: restarted
+    daemon_reload: yes
+  become: yes
+
+- name: enable service
+  systemd:
+    name: RPi-Jukebox-RFID
+    state: restarted
+    enabled: yes
+
+

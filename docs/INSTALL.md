@@ -110,183 +110,43 @@ static domain_name_servers=192.168.178.1
 ~~~~
 Save the changes with `Ctrl & O` then `Enter` then `Ctrl & X`.
 
-## Install samba to share folders over your home network
-
-To make the jukebox easy to administer, it is important that you can add new songs and register new RFID cards over your home network. This can be done from any machine. The way to integrate your RPi into your home network is using *Samba*, the standard [Windows interoperability suite for Linux and Unix](https://www.samba.org/).
-
-Open a terminal and install the required packages with this line:
+##Get the jukebox code
 
 ~~~~
-$ sudo apt-get install samba samba-common-bin 
+cd /home/pi/
+git clone https://github.com/l-laborie/RPi-Jukebox-RFID.git
 ~~~~
 
-First, let's edit the *Samba* configuration file and define the workgroup the RPi should be part of.
+## Install by ansible
 
-~~~~
-$ sudo nano /etc/samba/smb.conf
-~~~~
+The folder install contain all ansible code to install all modules or library needed by this project.
+To use it the best way is to create a virtualenv with ansible, and launch the install:
 
-Edit the entries for workgroup and wins support:
-
+Install virtual env if not done
 ~~~~
-workgroup = WORKGROUP
-wins support = yes
+pip install --user virtualenv
 ~~~~
 
-If you are already running a windows home network, add the name of the network where I have added `WORKGROUP`. 
-
-Now add the specific folder that we want to be exposed to the home network in the `smb.conf` file. 
-
+Create a virtual env
 ~~~~
-[pi_jukebox]
-   comment= Pi Jukebox
-   path=/home/pi/RPi-Jukebox-RFID/shared
-   browseable=Yes
-   writeable=Yes
-   only guest=no
-   create mask=0777
-   directory mask=0777
-   public=no
+virtualenv ~/.rpi_jukebox_rfid_install
+source ~/.rpi_jukebox_rfid_install/bin/activate
 ~~~~
 
-**Note:** the `path` given in this example works (only) if you are installing the jukebox code in the directory `/home/pi/`.
-
-Finally, add the user `pi` to *Samba*. For simplicity and against better knowledge regarding security, I suggest to stick to the default user and password:
-
+Activate the new virtual env
 ~~~~
-user     : pi
-password : raspberry
+source ~/.rpi_jukebox_rfid_install/bin/activate
 ~~~~
 
-Type the following to add the new user:
-
+Into this environment, install ansible
 ~~~~
-$ sudo smbpasswd -a pi
-~~~~
-
-## Adding python libraries
-
-### Installing evdev
-
-In order to read the IDs from the RFID cards, we need to dig deep into the operating system. We need to have an ear at the source of the RFID reader, so to speak. And in order to listen to these events using the programming language *python*, we need to [install the package *evdev*. [Try the official installation procedure first](http://python-evdev.readthedocs.io/en/latest/install.html). If you run into problem, like I did, this might work:
-
-~~~~
-$ sudo apt-get install python-dev python-pip gcc
+pip install ansible
 ~~~~
 
-Find out the linux kernel release you are running:
-
+Install by ansible on localhost
 ~~~~
-$ uname -r
-4.4.34+
-~~~~
-
-This means you are running release `4.4.34+`. Knowing this information, install the linux headers for your linux kernel by using the first to numbers of the release, in this case:
-
-~~~~
-$ sudo apt-get install linux-headers-4.4
-~~~~
-
-Now the system is ready to load the important package for the python code we use: *evdev*. 
-
-~~~~
-$ sudo pip install evdev
-~~~~
-
-## Running the web app
-
-There is a second way to control the RFID jukebox: through the browser. You can open a browser on your phone or computer and type in the static IP address that we assigned to the RPi earlier. As long as your phone or PC are connected to the same WiFi network that the RPi is connected to, you will see the web app in your browser.
-
-### Installing lighttpd and PHP
-
-~~~~
-$ sudo apt-get install lighttpd php5-common php5-cgi php5
-~~~~
-
-### Configuring lighttpd
-
-Open the configuration file:
-
-~~~~
-$ sudo nano /etc/lighttpd/lighttpd.conf
-~~~~
-
-Change the document root, meaning the folder where the webserver will look for things to display or do when somebody types in the static IP address. To point it to the Jukebox web app, change the line in the configuration to:
-
-~~~~
-server.document-root = "/home/pi/RPi-Jukebox-RFID/htdocs"
-~~~~
-
-The webserver is usually not very powerful when it comes to access to the system it is running on. From a security point of view, this is a very good concept: you don't want a website to potentially change parts of the operating system which should be locked away from any public access.
-
-We do need to give the webserver more access in order to run a web app that can start and stop processes on the RPi. To make this happen, we need to add the webserver to the list of users/groups allowed to run commands as superuser. To do so, open the list of sudo users in the nano editor:
-
-~~~~
-$ sudo nano /etc/sudoers
-~~~~
-
-And at the bottom of the file, add the following line:
-
-~~~~
-www-data ALL=(ALL) NOPASSWD: ALL
-~~~~
-
-The final step to make the RPi web app ready is to tell the webserver how to execute PHP. To enable the lighttpd server to execute php scripts, the fastcgi-php module must be enabled.
-
-~~~~
-$ sudo lighty-enable-mod fastcgi-php
-~~~~
-
-Now we can reload the webserver with the command:
-
-~~~~
-$ sudo service lighttpd force-reload
-~~~~
-
-Next on the list is the media player which will play the audio files and playlists: VLC. In the coming section you will also learn more about why we gave the webserver more power over the system by adding it to the list of `sudo` users.
-
-## Install the media player VLC 
-
-The VLC media player not only plays almost everything (local files, web streams, playlists, folders), it also comes with a command line interface `CLVC` which we will be using to play media on the jukebox.
-
-Install *VLC*
-
-~~~~
-sudo apt-get install vlc
-~~~~
-
-Ok, the next step is a severe hack. Quite a radical tweak: we will change the source code of the VLC binary file. We need to do this so that we can control the jukebox also over the web app. VLC was designed not to be run with the power of a superuser. In order to trigger VLC from the webserver, this is exactly what we are doing.
-
-Changing the binary code is only a one liner, replacing `geteuid` with `getppid`. If you are interested in the details what this does, you can [read more about the VLC hack here](https://www.blackmoreops.com/2015/11/02/fixing-vlc-is-not-supposed-to-be-run-as-root-sorry-error/).
-
-~~~~
-$ sudo sed -i 's/geteuid/getppid/' /usr/bin/vlc
-~~~~
-
-**Note:** changing the binary of VLC to allow the program to be run by the webserver as a superuser is another little step in a long string of potential security problems. In short: the jukebox is a perfectly fine project to run for your personal pleasure. It's not fit to run on a public server.
-
-## Install mpg123
-
-While we are using *VLC* for all the media to be played on the jukebox, we are using the command line player *mpg123* for the boot sound. More about the boot sound in the file [`CONFIGURE.md`](CONFIGURE.md). To install this tiny but reliable player, type:
-
-```
-$ sudo apt-get install mpg123
-```
-
-## Install git
-
-[*git* is a version control system](https://git-scm.com/) which makes it easy to pull software from GitHub - which is where the jukebox software is located.
-
-~~~~
-$ sudo apt-get update
-$ sudo apt-get install git
-~~~~
-
-## Install the jukebox code
-
-~~~~
-$ cd /home/pi/
-$ git clone https://github.com/MiczFlor/RPi-Jukebox-RFID.git
+cd /home/pi/RPi-Jukebox-RFID/install
+ansible-playbook -i "localhost," -c local jukebox.yml
 ~~~~
 
 ## Reboot your Raspberry Pi

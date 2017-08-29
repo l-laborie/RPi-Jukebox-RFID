@@ -1,0 +1,9 @@
+- name: apply samba to jukeboxes
+  hosts: all
+  roles:
+    - update
+    - python
+    - samba
+    - php
+    - mpg
+    - jukebox

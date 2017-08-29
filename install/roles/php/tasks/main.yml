@@ -1,0 +1,33 @@
+- name: install packages
+  apt: name={{ item }} state=latest
+  become: yes
+  with_items:
+    - lighttpd
+    - php5-common
+    - php5-cgi
+    - php5
+
+- name: change lighttpd root directory
+  lineinfile: dest=/etc/lighttpd/lighttpd.conf
+              regexp='^server.document-root '
+              line='server.document-root = "/home/pi/RPi-Jukebox-RFID/htdocs"'
+  become: yes
+
+- name: manage sudoers
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^www-data\s'
+    line: 'www-data ALL=(ALL) NOPASSWD: ALL'
+  become: yes
+
+- name: enable fastcgi
+  command: lighty-enable-mod fastcgi-php
+  ignore_errors: yes
+  become: yes
+
+- name: reload service
+  service:
+    name: lighttpd
+    state: restarted
+  become: yes

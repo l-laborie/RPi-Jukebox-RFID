@@ -1,0 +1,11 @@
+- name: Apt clean
+  shell: apt-get autoclean
+  become: yes
+
+- name: update system
+  apt: update_cache=yes
+  become: yes
+
+- name: upgrade system
+  apt: upgrade=dist
+  become: yes

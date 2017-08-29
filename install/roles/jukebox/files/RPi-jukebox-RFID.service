@@ -1,0 +1,11 @@
+[Unit]
+Description=Jukebox for raspberry pi with RFID as action vector
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /home/pi/RPi-Jukebox-RFID/jukebox/daemon/daemon_reader.py
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

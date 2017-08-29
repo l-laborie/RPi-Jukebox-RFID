@@ -1,0 +1,21 @@
+- name: install packages
+  apt: name={{ item }} state=latest
+  become: yes
+  with_items:
+    - samba
+    - samba-common-bin
+
+- name: copy samba config file
+  copy: src=smb.conf dest=/etc/samba/smb.conf backup=yes
+  become: yes
+
+- name: test pi user are created
+  shell: pdbedit -L -v | grep pi
+  become: yes
+  ignore_errors: yes
+  register: pi_user_name
+
+- name: add pi user
+  command: smbpasswd -a -w raspberry pi
+  become: yes
+  when: not pi_user_name.stdout == 'pi'
