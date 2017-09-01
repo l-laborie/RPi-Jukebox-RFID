@@ -4,6 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
+WorkingDirectory=/home/pi/RPi-Jukebox-RFID/
 ExecStart=/usr/bin/python /home/pi/RPi-Jukebox-RFID/jukebox/daemon/daemon_reader.py
 Restart=on-abort
 
