@@ -6,4 +6,3 @@
     - python-pip
     - gcc
     - linux-headers-rpi
-    - evdev
