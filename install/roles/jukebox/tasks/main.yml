@@ -4,7 +4,7 @@
 
 - name: copy service description file
   copy:
-    src: RPi-Jukebox-RFID.service
+    src: RPi-jukebox-RFID.service
     dest: /lib/systemd/system/RPi-Jukebox-RFID.service
     backup: yes
     mode: "u=rw,g=r,o=r"
