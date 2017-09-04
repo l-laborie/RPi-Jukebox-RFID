@@ -1,5 +1,6 @@
 - name: install requirements
-  requirements: /home/pi/RPi-Jukebox-RFID/requirements.txt
+  pip:
+    requirements: /home/pi/RPi-Jukebox-RFID/requirements.txt
 
 - name: copy service description file
   copy:

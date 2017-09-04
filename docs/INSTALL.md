@@ -124,7 +124,8 @@ To use it the best way is to create a virtualenv with ansible, and launch the in
 
 Install virtual env if not done
 ~~~~
-pip install --user virtualenv
+sudo pip install
+virtualenv
 ~~~~
 
 Create a virtual env
@@ -140,6 +141,7 @@ source ~/.rpi_jukebox_rfid_install/bin/activate
 
 Into this environment, install ansible
 ~~~~
+sudo apt-get install libffi-dev libssl-dev
 pip install ansible
 ~~~~
 

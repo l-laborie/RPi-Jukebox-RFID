@@ -5,5 +5,5 @@
     - python-dev
     - python-pip
     - gcc
-    - linux-headers-4.4
+    - linux-headers-rpi
     - evdev
