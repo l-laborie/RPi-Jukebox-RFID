@@ -4,9 +4,15 @@ import os
 from sys import path
 path.append(os.getcwd())
 
-from jukebox.handlers import handler_factory
-from jukebox.reader import Reader
-from jukebox.setting import DAEMON_MAIN_LOOP_TIMEOUT, CMD_SHUTDOWN, LOGGING_FOLDER, LOGGING_LEVEL
+# pylint: disable=wrong-import-position
+from jukebox.handlers import handler_factory  # noqa
+from jukebox.reader import Reader  # noqa
+from jukebox.setting import (  # noqa
+    DAEMON_MAIN_LOOP_TIMEOUT,
+    CMD_SHUTDOWN,
+    LOGGING_FOLDER,
+    LOGGING_LEVEL,
+)
 
 
 class LaunchReader(object):
