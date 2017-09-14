@@ -84,18 +84,23 @@ class Player(object):
         continue_ = True
         start_time = time.time()
         while continue_:
+            # print 'player loop'
             if self._input_event.wait(0.05):
                 while not self._action_queue.empty():
                     action = self._action_queue.pop()
+                    # print action
                     self.__log(level=logging.DEBUG,
                                message='Execute %s action' %
                                self._ACTION_NAMES[action])
                     action = self._process_by_action.get(action)
                     if action:
                         continue_ &= action(self._media_playlist.get())
+                        print 'action launched'
                 self._input_event.clear()
+            # print 'end of grap input event'
 
             if self._processor.process_is_state_change() is not None:
+                # print 'enter state change'
                 self.__log(level=logging.DEBUG, message='changing state'
                                                         'detected')
                 if self._media_playlist.increase_index():
@@ -103,10 +108,12 @@ class Player(object):
                     self._set_actions([self._PLAY, ])
                 else:
                     self._processor.process_cleanup()
+            # print 'end of state change'
 
             if self._life_time and continue_:
                 life_time = time.time() - start_time
                 continue_ = life_time < self._life_time
+            # print 'end compute continue'
 
         life_time = time.time() - start_time
         self.__log(level=logging.INFO,
@@ -129,9 +136,11 @@ class Player(object):
 
     def play(self, media_file, wait=False, timeout=None):
         media_files = self._media_lister.select_files(media_file)
+        print 'files : %r (wait: %r)' % (media_files, wait)
         self._media_playlist.set(list(media_files))
         self.__log(level=logging.INFO,
                    message='Start playing %r' % media_files)
+        print 'go next'
         self._set_actions([self._STOP, self._PLAY], wait=wait, timeout=timeout)
 
     def increase_volume(self, wait=False, timeout=None):

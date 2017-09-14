@@ -102,3 +102,7 @@ ENV/
 *.iml
 out
 gen
+
+shared/
+logs/
+scripts/deviceName.txt

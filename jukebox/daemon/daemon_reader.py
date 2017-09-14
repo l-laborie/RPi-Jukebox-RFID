@@ -42,7 +42,7 @@ class DaemonReader(object):
         if not os.path.exists(LOGGING_FOLDER):
             os.makedirs(LOGGING_FOLDER)
         logging.basicConfig(
-            filename=path.join(LOGGING_FOLDER, 'jukebox.log'),
+            filename=os.path.join(LOGGING_FOLDER, 'jukebox.log'),
             level=LOGGING_LEVEL)
 
     def terminate(self):

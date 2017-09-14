@@ -36,14 +36,15 @@ class OMXPlayerProcessor(object):
 
     def process_increase_volume(self, *args):
         new_volume = min(0, self._current_volume + 50)
-        if new_volume == self._current_volume:
+        if new_volume != self._current_volume:
             self._wrapper.write('+')
             self._current_volume = new_volume
         return True
 
     def process_decrease_volume(self, *args):
+        print 'volume: %r' % self._current_volume
         new_volume = max(-6000, self._current_volume - 50)
-        if new_volume == self._current_volume:
+        if new_volume != self._current_volume:
             self._wrapper.write('-')
             self._current_volume = new_volume
         return True

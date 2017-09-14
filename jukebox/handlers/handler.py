@@ -14,16 +14,19 @@ from jukebox.setting import (
 
 
 class Handler(object):
-    def __init__(self, commands, path_shared, play):
+    def __init__(self, commands, path_shared, play, startup_sound=None):
         self._commands = commands
         self._path_shared = path_shared
         self._path_shortcut = path.join(path_shared, 'shortcuts')
         self._path_audio_folder = path.join(path_shared, 'audiofolders')
         self._play = play
+        if startup_sound:
+            play(startup_sound)
 
     def command(self, card_id):
         # check if the command is one of global
         action = self._commands.get(card_id)
+        print 'cmd %r --> %r' % (card_id, action) 
         if action is not None:
             action()
             return
@@ -37,11 +40,12 @@ class Handler(object):
             shortcut = path.join(self._path_shortcut, card_id)
             if path.isfile(shortcut):
                 with open(shortcut, 'r') as content_file:
-                    content = content_file.read()
+                    content = content_file.read().rstrip()
                 ids_file.write('This ID has been used before.')
 
                 if content is not None and content != card_id:
                     media_folder = path.join(self._path_audio_folder, content)
+                    print 'folder: --> %r' % media_folder
                     self._play(media_folder)
                     return
 
@@ -84,7 +88,8 @@ def handler_factory(player=None, terminate_timeout=None, **extra_actions):
         player=player, terminate_timeout=terminate_timeout,
         shutdown_action=shutdown_action
     )
+    startup_sound = path.join(WORKING_DIRECTORY, 'misc', 'startupsound.mp3')
     commands.update(extra_actions)
 
     shared = path.join(WORKING_DIRECTORY, 'shared')
-    return Handler(commands, shared, player.play)
+    return Handler(commands, shared, player.play, startup_sound)
