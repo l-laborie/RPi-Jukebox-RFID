@@ -57,4 +57,4 @@ def test_stop(work_directory, get_player):
     sleep(0.1)
     player.quit(wait=True)
     assert player._processor.result.startswith('stop play (test.one)')
-    assert player._processor.result.endswith('stop stop quit clean_up ')
+    assert player._processor.result.endswith('stop quit clean_up ')

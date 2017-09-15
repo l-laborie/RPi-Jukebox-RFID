@@ -59,6 +59,9 @@ class DummyProcessor(object):
         return True
 
     def process_play(self, *args):
+        if not args[0]:
+            return True
+
         file_name = os.path.split(args[0])[-1]
         self.result += 'play (%s) ' % file_name
         return True

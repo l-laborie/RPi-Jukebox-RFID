@@ -7,7 +7,7 @@ WORKING_DIRECTORY = path.dirname(path.dirname(path.realpath(__file__)))
 
 
 # player Config
-PLAYER_AVAILABLE_MEDIA_EXTENSIONS = ('.mp3', '.wav', '.flac')
+PLAYER_AVAILABLE_MEDIA_EXTENSIONS = ('.mp3', '.wav', '.flac', 'wma')
 PLAYER_STARTUP_SOUND = path.join(WORKING_DIRECTORY, 'misc', 'startupsound.mp3')
 PLAYER_HALT_SOUND = None
 

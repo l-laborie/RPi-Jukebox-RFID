@@ -44,7 +44,8 @@ class Reader(object):
         result = ''
         key = ''
         while key != 'KEY_ENTER':
-            dev, _, _ = select([self.dev], [], [], timeout=timeout)
+            dev, _, _ = select([self.dev], [], [], timeout)
+
             if not dev:
                 # Timeout raised
                 return None

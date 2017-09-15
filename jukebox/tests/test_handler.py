@@ -12,7 +12,8 @@ class Dummy(object):
         self.seen = True
 
     def assert_played(self, folder):
-        self.seen = 'tests/shared/audiofolders/audio' in folder
+        self.seen = 'tests/shared/audiofolders/audio' in folder.replace(
+            '\\', '/')
 
 
 def test_handler_command(work_directory):
@@ -77,5 +78,5 @@ def test_factory(get_player):
                               **{CMD_SHUTDOWN: dummy.assert_true})
     handler.command(CMD_SHUTDOWN)
 
-    assert player._processor.result == 'stop quit clean_up '
+    assert player._processor.result.endswith('stop quit clean_up ')
     assert dummy.seen
