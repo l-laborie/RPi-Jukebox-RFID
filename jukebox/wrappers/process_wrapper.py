@@ -41,7 +41,6 @@ class ProcessWrapper(object):
         self._nbsr = None
 
     def launch(self, args):
-        print args
         self._process = subprocess.Popen(
             args,
             stdin=subprocess.PIPE,
@@ -66,14 +65,10 @@ class ProcessWrapper(object):
             self._process.wait()
 
     def write(self, command):
-        print 'enter write %s' % command
-        print self._process and self._process.poll() is None
         if self._process and self._process.poll() is None:
             self._process.stdin.write(command)
-            print 'wrote'
 
     def clean_up(self):
-        print 'clean up'
         if self._nbsr:
             self._nbsr.terminate()
             self._nbsr = None
