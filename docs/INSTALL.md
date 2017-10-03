@@ -122,33 +122,10 @@ git clone https://github.com/l-laborie/RPi-Jukebox-RFID.git
 The folder install contain all ansible code to install all modules or library needed by this project.
 To use it the best way is to create a virtualenv with ansible, and launch the install:
 
-Install virtual env if not done
+Install by one command
 ~~~~
-sudo pip install
-virtualenv
-~~~~
-
-Create a virtual env
-~~~~
-virtualenv ~/.rpi_jukebox_rfid_install
-source ~/.rpi_jukebox_rfid_install/bin/activate
-~~~~
-
-Activate the new virtual env
-~~~~
-source ~/.rpi_jukebox_rfid_install/bin/activate
-~~~~
-
-Into this environment, install ansible
-~~~~
-sudo apt-get install libffi-dev libssl-dev
-pip install ansible
-~~~~
-
-Install by ansible on localhost
-~~~~
-cd /home/pi/RPi-Jukebox-RFID/install
-ansible-playbook -i "localhost," -c local jukebox.yml
+cd ~/RPi-Jukebox-RFID/install
+sudo ./install.sh
 ~~~~
 
 ## Reboot your Raspberry Pi
