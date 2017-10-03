@@ -42,7 +42,7 @@ class DummyStreamReader(object):
 class DummyProcessWrapper(ProcessWrapper):
     def __init__(self):
         super(DummyProcessWrapper, self).__init__(
-            DummyStreamReader, lambda x: DummyProcess(x))
+            DummyStreamReader, DummyProcess)
 
 
 def test_wait():

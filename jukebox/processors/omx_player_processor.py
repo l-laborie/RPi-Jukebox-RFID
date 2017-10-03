@@ -30,7 +30,7 @@ class OMXPlayerProcessor(object):
     def process_play(self, *args):
         launch_args = (
             [self._command, args[0]] + self._args +
-            ['--vol', str(self._default_volume)])
+            ['--vol', str(self._current_volume)])
         self._wrapper.launch(launch_args)
         return True
 
